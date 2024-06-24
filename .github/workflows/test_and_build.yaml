@@ -37,7 +37,7 @@ jobs:
           ./bin/deepsource report --analyzer test-coverage --key rust --value-file coverage.info
         env:
           DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
-      - name: Prepare Go version 1.21
+      - name: Prepare Go version 1.21 (Windows)
         if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/setup-go@v2
         with:

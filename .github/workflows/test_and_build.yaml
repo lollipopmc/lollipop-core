@@ -25,8 +25,16 @@ jobs:
       - name: Check Coverage
         run: cargo +stable llvm-cov --lcov --output-path coverage.info
       - name: Upload Coverage
+        if: ${{ matrix.os != 'windows-2022' }}
         run: |
           curl https://deepsource.io/cli | sh
           ./bin/deepsource report --analyzer test-coverage --key rust --value-file coverage.info
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+      - name: Upload Coverage (Windows)
+        if: ${{ matrix.os == 'windows-2022' }}
+        run: |
+          curl https://deepsource.io/cli | sh
+          .\bin\deepsource report --analyzer test-coverage --key rust --value-file coverage.info
         env:
           DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}

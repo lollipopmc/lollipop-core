@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DEEPSOURCE_CLI_VERSION: 0.8.6
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Prepare Rust Toolchain
+        run: |
+          rustup update stable
+          cargo +stable install cargo-llvm-cov
+      - name: Prepare Golang Toolchain
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+      - name: Build DeepSource CLI
+        run: go install github.com/deepsourcelabs/cli/cmd/deepsource@${{ env.DEEPSOURCE_CLI_VERSION }}
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        if: ${{ github.event_name != 'pull_request' }}
+      - name: Checkout Pull Request Code
+        uses: actions/checkout@v4
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Build
+        run: cargo +stable build --verbose
+      - name: Test
+        run: cargo +stable test --verbose
+      - name: Check Coverage
+        run: cargo +stable llvm-cov --lcov --output-path coverage.info
+      - name: Upload Coverage
+        run: deepsource report --analyzer test-coverage --key rust --value-file coverage.info
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}

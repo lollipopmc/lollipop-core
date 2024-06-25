@@ -19,34 +19,15 @@ jobs:
         run: |
           rustup update stable
           cargo +stable install cargo-llvm-cov
-      - name: Prepare Golang Toolchain
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GOLANG_VERSION }}
-      # Note that amd64 in Golang should
-      # convert to x86_64
       - name: Download DeepSource CLI
+        if: ${{ matrix.os != 'windows-2022'}}
+        run: curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
+      - name: Download DeepSource CLI (Windows)
+        if: ${{ matrix.os == 'windows-2022'}}
         run: |
-          OS=$(go env GOOS)
-          ARCH=$(go env GOARCH)
-          # convert amd64 to x86_64
-          if [ "$ARCH" = "amd64" ]; then
-            ARCH="x86_64"
-          fi
-          PLATFORM="${OS}_${ARCH}"
-          echo "Downloading DeepSource CLI for $PLATFORM on version v$DEEPSOURCE_CLI_VERSION"
-          gh release download v$DEEPSOURCE_CLI_VERSION -R DeepSourceCorp/cli --pattern "*$PLATFORM.tar.gz"
-          tar -xvzf "deepsource_${DEEPSOURCE_CLI_VERSION}_${PLATFORM}.tar.gz"
-          IS_DEEPSOURCE_CLI_DOWNLOADED=$(ls -1 | grep deepsource | wc -l)
-          if [ "$IS_DEEPSOURCE_CLI_DOWNLOADED" -eq 0 ]; then
-            echo "DeepSource CLI download failed"
-            exit 1
-          else
-            echo "DeepSource CLI downloaded successfully"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEEPSOURCE_CLI_VERSION: ${{ env.DEEPSOURCE_CLI_VERSION }}
+          DOWNLOAD_URL="https://github.com/DeepSourceCorp/cli/releases/download/v${{ env.DEEPSOURCE_CLI_VERSION }}/deepsource_${{ env.DEEPSOURCE_CLI_VERSION }}_windows_x86_64.tar.gz"
+          Invoke-WebRequest -Uri $DOWNLOAD_URL -OutFile deepsource.tar.gz
+          7z x .\deepsource.tar.gz -obin
       - name: Checkout Code
         uses: actions/checkout@v4
         if: ${{ github.event_name != 'pull_request' }}
@@ -62,6 +43,6 @@ jobs:
       - name: Check Coverage
         run: cargo +stable llvm-cov --lcov --output-path coverage.info
       - name: Upload Coverage
-        run: ./deepsource report --analyzer test-coverage --key rust --value-file coverage.info
+        run: ./bin/deepsource report --analyzer test-coverage --key rust --value-file coverage.info
         env:
           DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}

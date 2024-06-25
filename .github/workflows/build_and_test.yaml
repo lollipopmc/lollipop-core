@@ -24,6 +24,7 @@ jobs:
         run: |
           curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
           ls
+          ls ./bin
       - name: Download DeepSource CLI (Windows)
         if: ${{ matrix.os == 'windows-2022'}}
         run: |

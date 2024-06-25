@@ -19,6 +19,10 @@ jobs:
         run: |
           rustup update stable
           cargo +stable install cargo-llvm-cov
+      - name: Prepare Golang Toolchain
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GOLANG_VERSION }}
       # Note that amd64 in Golang should
       # convert to x86_64
       - name: Download DeepSource CLI

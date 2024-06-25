@@ -22,6 +22,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         if: ${{ github.event_name != 'pull_request' }}
+      - name: Checkout Pull Request Code
+        uses: actions/checkout@v4
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Download DeepSource CLI
         if: ${{ matrix.os != 'windows-2022'}}
         run: curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
@@ -31,11 +36,6 @@ jobs:
           $DOWNLOAD_URL="https://github.com/DeepSourceCorp/cli/releases/download/v${{ env.DEEPSOURCE_CLI_VERSION }}/deepsource_${{ env.DEEPSOURCE_CLI_VERSION }}_windows_x86_64.tar.gz"
           Invoke-WebRequest -Uri $DOWNLOAD_URL -OutFile deepsource.tar.gz
           7z x .\deepsource.tar.gz -obin
-      - name: Checkout Pull Request Code
-        uses: actions/checkout@v4
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Build
         run: cargo +stable build --verbose
       - name: Test

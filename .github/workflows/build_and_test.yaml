@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  DEEPSOURCE_CLI_VERSION: 0.8.6
+  DEEPSOURCE_CLI_VERSION: v0.8.6
 
 jobs:
   build-and-test:

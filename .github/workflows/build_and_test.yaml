@@ -21,7 +21,9 @@ jobs:
           cargo +stable install cargo-llvm-cov
       - name: Download DeepSource CLI
         if: ${{ matrix.os != 'windows-2022'}}
-        run: curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
+        run: |
+          curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
+          ls
       - name: Download DeepSource CLI (Windows)
         if: ${{ matrix.os == 'windows-2022'}}
         run: |

@@ -19,21 +19,18 @@ jobs:
         run: |
           rustup update stable
           cargo +stable install cargo-llvm-cov
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        if: ${{ github.event_name != 'pull_request' }}
       - name: Download DeepSource CLI
         if: ${{ matrix.os != 'windows-2022'}}
-        run: |
-          curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
-          ls
-          ls ./bin
+        run: curl -sSL https://deepsource.io/cli | sh -s -- v${{ env.DEEPSOURCE_CLI_VERSION }}
       - name: Download DeepSource CLI (Windows)
         if: ${{ matrix.os == 'windows-2022'}}
         run: |
           $DOWNLOAD_URL="https://github.com/DeepSourceCorp/cli/releases/download/v${{ env.DEEPSOURCE_CLI_VERSION }}/deepsource_${{ env.DEEPSOURCE_CLI_VERSION }}_windows_x86_64.tar.gz"
           Invoke-WebRequest -Uri $DOWNLOAD_URL -OutFile deepsource.tar.gz
           7z x .\deepsource.tar.gz -obin
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        if: ${{ github.event_name != 'pull_request' }}
       - name: Checkout Pull Request Code
         uses: actions/checkout@v4
         if: ${{ github.event_name == 'pull_request' }}

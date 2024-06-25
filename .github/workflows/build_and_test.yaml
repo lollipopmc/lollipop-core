@@ -19,7 +19,7 @@ jobs:
           rustup update stable
           cargo +stable install cargo-llvm-cov
       - name: Prepare Golang Toolchain
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: 1.21
       - name: Build DeepSource CLI
